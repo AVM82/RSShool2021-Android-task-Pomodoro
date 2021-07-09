@@ -6,13 +6,38 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerView2"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginBottom="@dimen/timer_items_list_merging_bottom"
+        app:layout_constraintBottom_toTopOf="@id/add_timer_button"
+        tools:listitem="@layout/stopwatch_item">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/add_timer_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        android:layout_marginEnd="@dimen/start_end_margin"
+        android:layout_marginBottom="@dimen/add_timer_margin_bottom"
+        android:text="@string/add_timer"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/start_end_margin"
+        android:hint="@string/add_timer_edittext_hint"
+        android:inputType="number"
+        app:layout_constraintBottom_toBottomOf="@+id/add_timer_button"
+        app:layout_constraintEnd_toStartOf="@id/add_timer_button"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/add_timer_button">
+
+    </com.google.android.material.textfield.TextInputEditText>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
