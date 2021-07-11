@@ -47,6 +47,7 @@
             android:layout_marginBottom="@dimen/start_end_margin"
             android:contentDescription="@string/progress_bar"
             android:src="@drawable/circle"
+            android:visibility="invisible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/button_barrier"
             app:layout_constraintStart_toEndOf="@id/stopwatch_timer"

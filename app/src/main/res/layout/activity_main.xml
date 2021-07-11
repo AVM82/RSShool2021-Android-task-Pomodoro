@@ -14,6 +14,8 @@
         android:orientation="vertical"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
         app:layout_constraintBottom_toTopOf="@id/add_timer_button"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:itemCount="5"
         tools:listitem="@layout/stopwatch_item">
 
     </androidx.recyclerview.widget.RecyclerView>
@@ -29,17 +31,17 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/textEditMinutes"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/start_end_margin"
         android:hint="@string/add_timer_edittext_hint"
         android:inputType="number"
+        android:maxLength="4"
         app:layout_constraintBottom_toBottomOf="@+id/add_timer_button"
         app:layout_constraintEnd_toStartOf="@id/add_timer_button"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/add_timer_button">
-
-    </com.google.android.material.textfield.TextInputEditText>
+        app:layout_constraintTop_toTopOf="@+id/add_timer_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
