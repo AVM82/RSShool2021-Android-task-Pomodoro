@@ -2,7 +2,7 @@ package org.rsschool.pomodoro.model
 
 import java.util.*
 
-data class StopWatch(
+data class TimerWatch(
     val id: UUID,
     var currentMs: Long,
     var isStarted: Boolean

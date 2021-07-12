@@ -5,4 +5,6 @@
     <string name="blinking_indicator">Blinking indicator</string>
     <string name="add_timer">ADD TIMER</string>
     <string name="add_timer_edittext_hint">Minutes</string>
+    <string name="start_timer_button_text">Start</string>
+    <string name="stop_timer_button_text">Stop</string>
 </resources>
