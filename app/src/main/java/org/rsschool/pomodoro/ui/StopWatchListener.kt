@@ -5,7 +5,7 @@ import java.util.*
 
 interface StopWatchListener {
 
-    fun delete(id: UUID)
+    fun delete(id: UUID, position: Int)
 
     fun start(timerWatch: TimerWatch, position: Int)
 

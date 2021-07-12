@@ -31,10 +31,10 @@ class MainActivity : AppCompatActivity(), StopWatchListener {
 
     }
 
-    override fun delete(id: UUID) {
+    override fun delete(id: UUID, position: Int) {
         stopWatchList.remove(stopWatchList.find { it.id == id })
-        stopWatchListAdapter.submitList(stopWatchList)
-        stopWatchListAdapter.notifyDataSetChanged()
+        stopWatchListAdapter.notifyItemRemoved(position)
+        stopWatchListAdapter.notifyItemRangeChanged(position, stopWatchList.size)
     }
 
     override fun start(timerWatch: TimerWatch, position: Int) {
