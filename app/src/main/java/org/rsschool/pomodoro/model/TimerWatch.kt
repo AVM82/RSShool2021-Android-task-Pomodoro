@@ -6,4 +6,6 @@ data class TimerWatch(
     val id: UUID,
     var currentMs: Long,
     var isStarted: Boolean
-)
+) {
+    var startTime = currentMs
+}

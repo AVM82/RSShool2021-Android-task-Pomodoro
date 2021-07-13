@@ -1,11 +1,16 @@
 package org.rsschool.pomodoro.ui.adapters
 
 import android.graphics.drawable.AnimationDrawable
+import android.os.CountDownTimer
+import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import org.rsschool.pomodoro.R
 import org.rsschool.pomodoro.databinding.StopwatchItemBinding
+import org.rsschool.pomodoro.extension.UNIT_TEN_MS
+import org.rsschool.pomodoro.extension.displayTime
+import org.rsschool.pomodoro.extension.resetTime
 import org.rsschool.pomodoro.model.TimerWatch
 import org.rsschool.pomodoro.ui.StopWatchListener
 
@@ -15,12 +20,13 @@ class ViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private val resources = binding.root.context.resources
+    private var timer: CountDownTimer? = null
 
     fun bind(timerWatch: TimerWatch, position: Int) {
         binding.stopwatchTimer.text = timerWatch.currentMs.displayTime()
 
         if (timerWatch.isStarted) {
-            startTimer()
+            startTimer(timerWatch)
         } else {
             stopTimer()
         }
@@ -35,21 +41,26 @@ class ViewHolder(
         }
     }
 
-    private fun startTimer() {
+    private fun startTimer(timerWatch: TimerWatch) {
         binding.apply {
             blinkingIndicator.isVisible = true
             restartButton.text = resources.getString(R.string.stop_timer_button_text)
             (blinkingIndicator.background as? AnimationDrawable)?.start()
         }
+        timer?.cancel()
+        timer = getCountdownTimer(timerWatch = timerWatch)
+        timer?.start()
     }
 
     private fun initButtonListeners(timerWatch: TimerWatch, position: Int) {
         binding.deleteItemButton.setOnClickListener {
+            timer?.cancel()
             listener.delete(id = timerWatch.id, position = position)
         }
 
         if (timerWatch.isStarted) {
             binding.restartButton.setOnClickListener {
+                timer?.cancel()
                 listener.stop(
                     timerWatch = timerWatch,
                     position = position
@@ -65,25 +76,25 @@ class ViewHolder(
         }
     }
 
-    private fun Long.displayTime(): String {
-        if (this <= 0L) {
-            return END_TIME
+    private fun getCountdownTimer(timerWatch: TimerWatch): CountDownTimer {
+        return object : CountDownTimer(timerWatch.currentMs, UNIT_TEN_MS) {
+            override fun onTick(millisUntilFinished: Long) {
+                timerWatch.currentMs = millisUntilFinished
+                Log.d("on tick", timerWatch.currentMs.displayTime())
+                Log.d("on tick until finished", millisUntilFinished.displayTime())
+                binding.stopwatchTimer.text =
+                    timerWatch.currentMs.displayTime()
+            }
+
+            override fun onFinish() {
+                binding.stopwatchTimer.text = timerWatch.startTime.displayTime()
+                timerWatch.resetTime()
+                stopTimer()
+            }
         }
-        val h = this / 1000 / 3600
-        val m = this / 1000 % 3600 / 60
-        val s = this / 1000 % 60
-        return "${displaySlot(h)}:${displaySlot(m)}:${displaySlot(s)}"
     }
 
-    private fun displaySlot(count: Long): String {
-        return if (count / 10L > 0) {
-            "$count"
-        } else {
-            "0$count"
-        }
-    }
 
-    companion object {
-        private const val END_TIME = "00:00:00"
-    }
 }
+
+
