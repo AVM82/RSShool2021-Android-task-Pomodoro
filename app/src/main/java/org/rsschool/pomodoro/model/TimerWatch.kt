@@ -9,5 +9,6 @@ data class TimerWatch(
     var isStarted: Boolean
 ) {
     var startTime = currentMs
+    var position: Int? = null
     var countDownTimer: CountDownTimer? = null
 }

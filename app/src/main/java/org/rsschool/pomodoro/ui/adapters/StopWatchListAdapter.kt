@@ -15,11 +15,13 @@ class StopWatchListAdapter(private val listener: StopWatchListener) :
 
     companion object DiffCallback : DiffUtil.ItemCallback<TimerWatch>() {
         override fun areItemsTheSame(oldItem: TimerWatch, newItem: TimerWatch): Boolean {
-            return oldItem === newItem
+            return oldItem.id == newItem.id
+
         }
 
         override fun areContentsTheSame(oldItem: TimerWatch, newItem: TimerWatch): Boolean {
-            return oldItem.id == newItem.id
+            return oldItem.currentMs == newItem.currentMs &&
+                    oldItem.isStarted == newItem.isStarted
         }
     }
 
@@ -30,6 +32,6 @@ class StopWatchListAdapter(private val listener: StopWatchListener) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(getItem(position), position)
+        holder.bind(getItem(position))
     }
 }
