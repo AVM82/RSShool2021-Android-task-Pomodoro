@@ -1,9 +1,11 @@
 package org.rsschool.pomodoro.extension
 
 import org.rsschool.pomodoro.model.TimerWatch
+import java.util.*
 
 private const val END_TIME = "00:00:00"
 const val UNIT_TEN_MS = 1000L
+var activeTimerId: UUID? = null
 
 fun TimerWatch.resetTime() {
     this.currentMs = this.startTime

@@ -11,8 +11,6 @@ import org.rsschool.pomodoro.ui.StopWatchListener
 class StopWatchListAdapter(private val listener: StopWatchListener) :
     ListAdapter<TimerWatch, ViewHolder>(DiffCallback) {
 
-    private var activeTimer: TimerWatch? = null
-
     companion object DiffCallback : DiffUtil.ItemCallback<TimerWatch>() {
         override fun areItemsTheSame(oldItem: TimerWatch, newItem: TimerWatch): Boolean {
             return oldItem.id == newItem.id

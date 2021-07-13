@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import org.rsschool.pomodoro.R
 import org.rsschool.pomodoro.databinding.StopwatchItemBinding
 import org.rsschool.pomodoro.extension.UNIT_TEN_MS
+import org.rsschool.pomodoro.extension.activeTimerId
 import org.rsschool.pomodoro.extension.displayTime
 import org.rsschool.pomodoro.extension.resetTime
 import org.rsschool.pomodoro.model.TimerWatch
@@ -42,6 +43,7 @@ class ViewHolder(
             (blinkingIndicator.background as? AnimationDrawable)?.start()
             restartButton.text = resources.getString(R.string.start_timer_button_text)
         }
+        activeTimerId = null
         timerWatch.countDownTimer?.cancel()
 
     }
@@ -52,6 +54,7 @@ class ViewHolder(
             restartButton.text = resources.getString(R.string.stop_timer_button_text)
             (blinkingIndicator.background as? AnimationDrawable)?.start()
         }
+        activeTimerId = timerWatch.id
         timerWatch.countDownTimer?.cancel()
         timerWatch.countDownTimer = getCountdownTimer(timerWatch)
         timerWatch.countDownTimer?.start()
@@ -61,6 +64,9 @@ class ViewHolder(
 
         binding.deleteItemButton.setOnClickListener {
             timerWatch.countDownTimer?.cancel()
+            if (timerWatch.id == activeTimerId) {
+                activeTimerId = null
+            }
             listener.delete(id = timerWatch.id, adapterPosition)
         }
 
@@ -84,7 +90,14 @@ class ViewHolder(
 
     private fun getCountdownTimer(timerWatch: TimerWatch): CountDownTimer {
         return object : CountDownTimer(timerWatch.currentMs, UNIT_TEN_MS) {
+
             override fun onTick(millisUntilFinished: Long) {
+                if (activeTimerId != timerWatch.id) {
+                    activeTimerId?.let {
+                        cancel()
+                        listener.stop(timerWatch, timerWatch.position ?: adapterPosition)
+                    }
+                }
                 timerWatch.currentMs = millisUntilFinished
                 if (adapterPosition == timerWatch.position) {
                     binding.stopwatchTimer.text =
@@ -97,7 +110,10 @@ class ViewHolder(
                 timeOverNotify()
                 timerWatch.resetTime()
                 stopTimer(timerWatch)
-                listener.stop(timerWatch = timerWatch, position = adapterPosition)
+                listener.stop(
+                    timerWatch = timerWatch,
+                    position = timerWatch.position ?: adapterPosition
+                )
             }
 
             private fun timeOverNotify() {
