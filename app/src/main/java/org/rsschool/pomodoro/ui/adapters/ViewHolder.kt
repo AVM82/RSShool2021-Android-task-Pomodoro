@@ -1,17 +1,15 @@
 package org.rsschool.pomodoro.ui.adapters
 
 import android.graphics.drawable.AnimationDrawable
-import android.os.CountDownTimer
 import android.util.Log
 import android.view.View
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.RecyclerView
 import org.rsschool.pomodoro.R
 import org.rsschool.pomodoro.databinding.StopwatchItemBinding
-import org.rsschool.pomodoro.extension.UNIT_TEN_MS
 import org.rsschool.pomodoro.extension.displayTime
-import org.rsschool.pomodoro.extension.resetTime
 import org.rsschool.pomodoro.model.TimerWatch
+import org.rsschool.pomodoro.timer.getCountdownTimer
 import org.rsschool.pomodoro.ui.StopWatchListener
 
 class ViewHolder(
@@ -20,25 +18,25 @@ class ViewHolder(
 ) : RecyclerView.ViewHolder(binding.root) {
 
     private val resources = binding.root.context.resources
-    private var timer: CountDownTimer? = null
 
     fun bind(timerWatch: TimerWatch, position: Int) {
         binding.stopwatchTimer.text = timerWatch.currentMs.displayTime()
-
         if (timerWatch.isStarted) {
             startTimer(timerWatch)
         } else {
-            stopTimer()
+            stopTimer(timerWatch)
         }
         initButtonListeners(timerWatch, position)
     }
 
-    private fun stopTimer() {
+    private fun stopTimer(timerWatch: TimerWatch) {
         binding.apply {
             blinkingIndicator.visibility = View.INVISIBLE
             (blinkingIndicator.background as? AnimationDrawable)?.start()
             restartButton.text = resources.getString(R.string.start_timer_button_text)
         }
+        timerWatch.countDownTimer?.cancel()
+
     }
 
     private fun startTimer(timerWatch: TimerWatch) {
@@ -47,20 +45,26 @@ class ViewHolder(
             restartButton.text = resources.getString(R.string.stop_timer_button_text)
             (blinkingIndicator.background as? AnimationDrawable)?.start()
         }
-        timer?.cancel()
-        timer = getCountdownTimer(timerWatch = timerWatch)
-        timer?.start()
+        timerWatch.countDownTimer?.cancel()
+        timerWatch.countDownTimer =
+            getCountdownTimer(timerWatch, binding) { stopTimer(timerWatch) }.start()
+//        timer = getCountdownTimer(timerWatch, binding) {stopTimer()}
+        timerWatch.countDownTimer?.start()
     }
 
     private fun initButtonListeners(timerWatch: TimerWatch, position: Int) {
+
+        Log.d("position -> ", position.toString())
+        Log.d("adapterPosition -> ", adapterPosition.toString())
+
         binding.deleteItemButton.setOnClickListener {
-            timer?.cancel()
+            timerWatch.countDownTimer?.cancel()
             listener.delete(id = timerWatch.id, position = position)
         }
 
         if (timerWatch.isStarted) {
             binding.restartButton.setOnClickListener {
-                timer?.cancel()
+//                timer?.cancel()
                 listener.stop(
                     timerWatch = timerWatch,
                     position = position
@@ -76,23 +80,23 @@ class ViewHolder(
         }
     }
 
-    private fun getCountdownTimer(timerWatch: TimerWatch): CountDownTimer {
-        return object : CountDownTimer(timerWatch.currentMs, UNIT_TEN_MS) {
-            override fun onTick(millisUntilFinished: Long) {
-                timerWatch.currentMs = millisUntilFinished
-                Log.d("on tick", timerWatch.currentMs.displayTime())
-                Log.d("on tick until finished", millisUntilFinished.displayTime())
-                binding.stopwatchTimer.text =
-                    timerWatch.currentMs.displayTime()
-            }
-
-            override fun onFinish() {
-                binding.stopwatchTimer.text = timerWatch.startTime.displayTime()
-                timerWatch.resetTime()
-                stopTimer()
-            }
-        }
-    }
+//    private fun getCountdownTimer(timerWatch: TimerWatch): CountDownTimer {
+//        return object : CountDownTimer(timerWatch.currentMs, UNIT_TEN_MS) {
+//            override fun onTick(millisUntilFinished: Long) {
+//                timerWatch.currentMs = millisUntilFinished
+//                Log.d("on tick", timerWatch.currentMs.displayTime())
+//                Log.d("on tick until finished", millisUntilFinished.displayTime())
+//                binding.stopwatchTimer.text =
+//                    timerWatch.currentMs.displayTime()
+//            }
+//
+//            override fun onFinish() {
+//                binding.stopwatchTimer.text = timerWatch.startTime.displayTime()
+//                timerWatch.resetTime()
+//                stopTimer()
+//            }
+//        }
+//    }
 
 
 }
