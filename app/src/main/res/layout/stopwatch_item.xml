@@ -37,17 +37,16 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="00:00:00:00" />
 
-        <ImageView
-            android:id="@+id/progress_bar"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
+        <org.rsschool.pomodoro.ui.customView.TimeCircle
+            android:id="@+id/time_circle"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
             android:layout_marginStart="@dimen/start_end_margin"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="@dimen/start_end_margin"
             android:contentDescription="@string/progress_bar"
-            android:src="@drawable/circle"
-            android:visibility="invisible"
+            app:color="@color/red_500"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/button_barrier"
             app:layout_constraintStart_toEndOf="@id/stopwatch_timer"
@@ -84,7 +83,7 @@
             app:constraint_referenced_ids="
             blinking_indicator,
             stopwatch_timer,
-            progress_bar" />
+            time_circle" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
