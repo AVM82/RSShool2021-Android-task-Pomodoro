@@ -27,7 +27,13 @@ class ViewHolder(
     private val resources = context.resources
 
     fun bind(timerWatch: TimerWatch) {
-        binding.stopwatchTimer.text = timerWatch.currentMs.displayTime()
+        binding.stopwatchTimer.text = timerWatch.untilFinishedMs.displayTime()
+        if (getCurrentMs(timerWatch) == 0L) {
+            binding.timeCircle.setPeriod(0L)
+        } else {
+            binding.timeCircle.setPeriod(timerWatch.periodTime)
+            binding.timeCircle.setCurrent(getCurrentMs(timerWatch))
+        }
         timerWatch.position = adapterPosition
         if (timerWatch.isStarted) {
             startTimer(timerWatch)
@@ -50,9 +56,10 @@ class ViewHolder(
 
     private fun startTimer(timerWatch: TimerWatch) {
         binding.apply {
+            timeCircle.setPeriod(timerWatch.periodTime)
             blinkingIndicator.isVisible = true
-            restartButton.text = resources.getString(R.string.stop_timer_button_text)
             (blinkingIndicator.background as? AnimationDrawable)?.start()
+            restartButton.text = resources.getString(R.string.stop_timer_button_text)
         }
         activeTimerId = timerWatch.id
         timerWatch.countDownTimer?.cancel()
@@ -89,7 +96,7 @@ class ViewHolder(
     }
 
     private fun getCountdownTimer(timerWatch: TimerWatch): CountDownTimer {
-        return object : CountDownTimer(timerWatch.currentMs, UNIT_TEN_MS) {
+        return object : CountDownTimer(timerWatch.untilFinishedMs, UNIT_TEN_MS) {
 
             override fun onTick(millisUntilFinished: Long) {
                 if (activeTimerId != timerWatch.id) {
@@ -98,15 +105,17 @@ class ViewHolder(
                         listener.stop(timerWatch, timerWatch.position ?: adapterPosition)
                     }
                 }
-                timerWatch.currentMs = millisUntilFinished
+
+                timerWatch.untilFinishedMs = millisUntilFinished
                 if (adapterPosition == timerWatch.position) {
+                    binding.timeCircle.setCurrent(getCurrentMs(timerWatch))
                     binding.stopwatchTimer.text =
-                        timerWatch.currentMs.displayTime()
+                        timerWatch.untilFinishedMs.displayTime()
                 }
             }
 
             override fun onFinish() {
-                binding.stopwatchTimer.text = timerWatch.startTime.displayTime()
+                binding.stopwatchTimer.text = timerWatch.periodTime.displayTime()
                 timeOverNotify()
                 timerWatch.resetTime()
                 stopTimer(timerWatch)
@@ -140,4 +149,7 @@ class ViewHolder(
             }
         }
     }
+
+    private fun getCurrentMs(timerWatch: TimerWatch) =
+        timerWatch.periodTime - timerWatch.untilFinishedMs
 }

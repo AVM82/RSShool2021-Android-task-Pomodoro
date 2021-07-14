@@ -8,7 +8,7 @@ const val UNIT_TEN_MS = 1000L
 var activeTimerId: UUID? = null
 
 fun TimerWatch.resetTime() {
-    this.currentMs = this.startTime
+    this.untilFinishedMs = this.periodTime
 }
 
 fun Long.displayTime(): String {

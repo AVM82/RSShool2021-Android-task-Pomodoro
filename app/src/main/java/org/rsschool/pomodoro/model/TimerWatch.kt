@@ -5,10 +5,10 @@ import java.util.*
 
 data class TimerWatch(
     val id: UUID,
-    var currentMs: Long,
+    var untilFinishedMs: Long,
     var isStarted: Boolean
 ) {
-    var startTime = currentMs
+    var periodTime = untilFinishedMs
     var position: Int? = null
     var countDownTimer: CountDownTimer? = null
 }
