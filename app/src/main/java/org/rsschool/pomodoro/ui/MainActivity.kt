@@ -21,14 +21,17 @@ class MainActivity : AppCompatActivity(), StopWatchListener {
 
 
         binding.addTimerButton.setOnClickListener {
-            val minutes = binding.textEditMinutes.text.toString().toLongOrNull()
-            val stopWatch =
-                TimerWatch(UUID.randomUUID(), minutes?.let { minutes * 60000L } ?: 0L, false)
-            stopWatchList.add(stopWatch)
-            stopWatchListAdapter.submitList(stopWatchList)
-            stopWatchListAdapter.notifyItemInserted(stopWatchList.size - 1)
+            if (binding.textEditMinutes.text.isNullOrEmpty() || binding.textEditMinutes.text?.get(0) == '0') {
+                binding.textEditMinutes.error = "can't be empty"
+            } else {
+                val minutes = binding.textEditMinutes.text.toString().toLongOrNull()
+                val stopWatch =
+                    TimerWatch(UUID.randomUUID(), minutes?.let { minutes * 60000L } ?: 0L, false)
+                stopWatchList.add(stopWatch)
+                stopWatchListAdapter.submitList(stopWatchList)
+                stopWatchListAdapter.notifyItemInserted(stopWatchList.size - 1)
+            }
         }
-
     }
 
     override fun delete(id: UUID, position: Int) {
