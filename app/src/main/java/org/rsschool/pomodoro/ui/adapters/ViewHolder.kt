@@ -105,9 +105,9 @@ class ViewHolder(
                         listener.stop(timerWatch, timerWatch.position ?: adapterPosition)
                     }
                 }
-
                 timerWatch.untilFinishedMs = millisUntilFinished
                 if (adapterPosition == timerWatch.position) {
+
                     binding.timeCircle.setCurrent(getCurrentMs(timerWatch))
                     binding.stopwatchTimer.text =
                         timerWatch.untilFinishedMs.displayTime()
