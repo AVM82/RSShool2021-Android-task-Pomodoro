@@ -90,6 +90,7 @@ class MainActivity : AppCompatActivity(), StopWatchListener, LifecycleObserver {
     fun onAppBackgrounded() {
         val startIntent = Intent(this, ForegroundService::class.java)
         startIntent.putExtra(COMMAND_ID, COMMAND_START)
+        stopWatchList.find { it.isStarted }?.countDownTimer?.cancel()
         startIntent.putExtra(STARTED_TIMER_TIME_MS, System.currentTimeMillis())
         startService(startIntent)
     }

@@ -4,6 +4,7 @@ import android.graphics.drawable.AnimationDrawable
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.CountDownTimer
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.core.view.isVisible
@@ -16,6 +17,7 @@ import org.rsschool.pomodoro.extension.displayTime
 import org.rsschool.pomodoro.extension.resetTime
 import org.rsschool.pomodoro.model.TimerWatch
 import org.rsschool.pomodoro.ui.StopWatchListener
+import kotlin.math.log
 
 
 class ViewHolder(
@@ -99,6 +101,7 @@ class ViewHolder(
         return object : CountDownTimer(timerWatch.untilFinishedMs, UNIT_TEN_MS) {
 
             override fun onTick(millisUntilFinished: Long) {
+                Log.d("TICK", millisUntilFinished.displayTime())
                 if (activeTimerId != timerWatch.id) {
                     activeTimerId?.let {
                         cancel()
