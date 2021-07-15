@@ -82,8 +82,8 @@ class MainActivity : AppCompatActivity(), StopWatchListener, LifecycleObserver {
         val gson = Gson()
         val json = gson.toJson(stopWatchList)
         editor.clear()
-        editor.putString(TIMER_LIST, json);
-        editor.apply();
+        editor.putString(TIMER_LIST, json)
+        editor.apply()
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
@@ -93,6 +93,7 @@ class MainActivity : AppCompatActivity(), StopWatchListener, LifecycleObserver {
         stopWatchList.find { it.isStarted }?.countDownTimer?.cancel()
         startIntent.putExtra(STARTED_TIMER_TIME_MS, System.currentTimeMillis())
         startService(startIntent)
+        ProcessLifecycleOwner.get().lifecycle.removeObserver(this)
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_START)
