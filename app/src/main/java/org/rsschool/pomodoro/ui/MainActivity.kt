@@ -1,15 +1,22 @@
 package org.rsschool.pomodoro.ui
 
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
+import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import org.rsschool.pomodoro.databinding.ActivityMainBinding
+import org.rsschool.pomodoro.extension.COMMAND_ID
+import org.rsschool.pomodoro.extension.COMMAND_START
+import org.rsschool.pomodoro.extension.COMMAND_STOP
+import org.rsschool.pomodoro.extension.STARTED_TIMER_TIME_MS
+import org.rsschool.pomodoro.foregroundservice.ForegroundService
 import org.rsschool.pomodoro.model.TimerWatch
 import org.rsschool.pomodoro.storage.TimerRepository.Companion.STORE_FILE_NAME
 import org.rsschool.pomodoro.storage.TimerRepository.Companion.TIMER_LIST
@@ -32,7 +39,7 @@ class MainActivity : AppCompatActivity(), StopWatchListener, LifecycleObserver {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-//        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+        ProcessLifecycleOwner.get().lifecycle.addObserver(this)
 
 
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -79,15 +86,19 @@ class MainActivity : AppCompatActivity(), StopWatchListener, LifecycleObserver {
         editor.apply();
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_START)
-    fun onAppForegrounded() {
-
-
-    }
-
     @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
     fun onAppBackgrounded() {
+        val startIntent = Intent(this, ForegroundService::class.java)
+        startIntent.putExtra(COMMAND_ID, COMMAND_START)
+        startIntent.putExtra(STARTED_TIMER_TIME_MS, System.currentTimeMillis())
+        startService(startIntent)
+    }
 
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
+    fun onAppForegrounded() {
+        val stopIntent = Intent(this, ForegroundService::class.java)
+        stopIntent.putExtra(COMMAND_ID, COMMAND_STOP)
+        startService(stopIntent)
     }
 
 
