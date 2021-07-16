@@ -6,14 +6,23 @@ import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.SharedPreferences
+import android.media.RingtoneManager
+import android.net.Uri
 import android.os.Build
 import android.os.IBinder
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import androidx.core.app.NotificationCompat
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.*
 import org.rsschool.pomodoro.R
 import org.rsschool.pomodoro.extension.*
+import org.rsschool.pomodoro.model.TimerWatch
 import org.rsschool.pomodoro.ui.MainActivity
+import java.lang.reflect.Type
 
 class ForegroundService : Service() {
 
@@ -63,7 +72,6 @@ class ForegroundService : Service() {
         if (isServiceStarted) {
             return
         }
-        Log.i("TAG", "commandStart()")
         try {
             moveToStartedState()
             startForegroundAndShowNotification()
@@ -73,17 +81,60 @@ class ForegroundService : Service() {
         }
     }
 
-    private fun continueTimer(startTime: Long) {
+    private fun continueTimer(untilFinishedTime: Long) {
         job = GlobalScope.launch(Dispatchers.Main) {
-            while (true) {
+            var untilFinish = untilFinishedTime - System.currentTimeMillis()
+            while (untilFinish > 0) {
+                Log.d("SERVICE", untilFinish.displayTime())
                 notificationManager?.notify(
                     NOTIFICATION_ID,
-                    getNotification(
-                        (System.currentTimeMillis() - startTime).displayTime().dropLast(3)
-                    )
+                    getNotification(untilFinish.displayTime())
                 )
+                updateTimeInStorage(untilFinish)
                 delay(INTERVAL)
+                untilFinish = untilFinishedTime - System.currentTimeMillis()
             }
+            timeOverNotify()
+        }
+    }
+
+    private fun timeOverNotify() {
+        try {
+            val notify: Uri =
+                RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+            val r = RingtoneManager.getRingtone(
+                baseContext,
+                notify
+            )
+            r.play()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        val v: Vibrator = getSystemService(VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+        } else {
+            //deprecated in API 26
+            v.vibrate(500);
+        }
+    }
+
+    private fun updateTimeInStorage(untilFinish: Long) {
+        val sharedPreferences: SharedPreferences =
+            getSharedPreferences(STORE_FILE_NAME, MODE_PRIVATE)
+        val serializedObject: String? =
+            sharedPreferences.getString(TIMER_LIST, null)
+        if (serializedObject != null) {
+            val gson = Gson()
+            val type: Type = object : TypeToken<List<TimerWatch?>?>() {}.type
+            val stopWatchList: MutableList<TimerWatch> =
+                gson.fromJson(serializedObject, type)
+            stopWatchList.find { it.isStarted }?.untilFinishedMs = untilFinish
+            val editor = sharedPreferences.edit()
+            val json = gson.toJson(stopWatchList)
+            editor.clear()
+            editor.putString(TIMER_LIST, json)
+            editor.apply()
         }
     }
 
@@ -91,7 +142,6 @@ class ForegroundService : Service() {
         if (!isServiceStarted) {
             return
         }
-        Log.i("TAG", "commandStop()")
         try {
             job?.cancel()
             stopForeground(true)
@@ -103,10 +153,8 @@ class ForegroundService : Service() {
 
     private fun moveToStartedState() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.d("TAG", "moveToStartedState(): Running on Android O or higher")
             startForegroundService(Intent(this, ForegroundService::class.java))
         } else {
-            Log.d("TAG", "moveToStartedState(): Running on Android N or lower")
             startService(Intent(this, ForegroundService::class.java))
         }
     }

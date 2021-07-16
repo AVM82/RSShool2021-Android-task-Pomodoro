@@ -11,7 +11,8 @@ const val COMMAND_START = "COMMAND_START"
 const val COMMAND_STOP = "COMMAND_STOP"
 const val COMMAND_ID = "COMMAND_ID"
 const val STARTED_TIMER_TIME_MS = "STARTED_TIMER_TIME"
-
+const val STORE_FILE_NAME = "appStore"
+const val TIMER_LIST = "timeList"
 
 
 var activeTimerId: UUID? = null

@@ -17,7 +17,6 @@ import org.rsschool.pomodoro.extension.displayTime
 import org.rsschool.pomodoro.extension.resetTime
 import org.rsschool.pomodoro.model.TimerWatch
 import org.rsschool.pomodoro.ui.StopWatchListener
-import kotlin.math.log
 
 
 class ViewHolder(
@@ -65,8 +64,11 @@ class ViewHolder(
         }
         activeTimerId = timerWatch.id
         timerWatch.countDownTimer?.cancel()
-        timerWatch.countDownTimer = getCountdownTimer(timerWatch)
-        timerWatch.countDownTimer?.start()
+        getCountdownTimer(timerWatch).let {
+            timerWatch.countDownTimer = it
+            listener.setTimer(it, timerWatch.id)
+            it.start()
+        }
     }
 
     private fun initButtonListeners(timerWatch: TimerWatch) {
@@ -110,7 +112,6 @@ class ViewHolder(
                 }
                 timerWatch.untilFinishedMs = millisUntilFinished
                 if (adapterPosition == timerWatch.position) {
-
                     binding.timeCircle.setCurrent(getCurrentMs(timerWatch))
                     binding.stopwatchTimer.text =
                         timerWatch.untilFinishedMs.displayTime()
